@@ -11,3 +11,5 @@ client.on("ready", () => {
     console.log("not ready");
   }
 });
+
+client.login(process.env.DISCORD_TOKEN!);
