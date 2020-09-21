@@ -38,4 +38,5 @@ $env:DATABASE = <database file path>
 
 ```
 DISCORD_TOKEN=<token>
+DATABASE=<databasefile>
 ```
