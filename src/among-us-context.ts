@@ -1,23 +1,22 @@
 import sqlite3 from "sqlite3";
-import { Game, CrewMateType, CrewMate } from "./databaseModels/model-index";
-import { resolve } from "path";
+import { CrewMateRow, GameRow, ParticipantRow } from "./databaseModels/database-index";
 
 export class AmongUsContext {
     private database: sqlite3.Database
     constructor(databaseFileName: string) {
         console.log(databaseFileName);
         this.database = new sqlite3.Database(databaseFileName);
-        this.database.run("CREATE TABLE IF NOT EXISTS CrewMateType(Id INTEGER PRIMARY KEY, Type TEXT)");
-        this.database.run("CREATE TABLE IF NOT EXISTS CrewMate(Id INTEGER PRIMARY KEY AUTOINCREMENT, DiscordId TEXT)");
-        this.database.run("CREATE TABLE IF NOT EXISTS DeathType(Id INTEGER PRIMARY KEY, Type TEXT)");
-        this.database.run("CREATE TABLE IF NOT EXISTS Game(Id INTEGER PRIMARY KEY AUTOINCREMENT, WinnerTypeId INTEGER)");
-        this.database.run("CREATE TABLE IF NOT EXISTS Participant(Id INTEGER PRIMARY KEY AUTOINCREMENT, GameId INTEGER, CrewMateId INTEGER, DeathTypeId INTEGER)");
+        this.database.run("CREATE TABLE IF NOT EXISTS crewMateType(id INTEGER PRIMARY KEY, type TEXT)");
+        this.database.run("CREATE TABLE IF NOT EXISTS crewMate(id INTEGER PRIMARY KEY AUTOINCREMENT, discord TEXT)");
+        this.database.run("CREATE TABLE IF NOT EXISTS deathType(id INTEGER PRIMARY KEY, type TEXT)");
+        this.database.run("CREATE TABLE IF NOT EXISTS game(id INTEGER PRIMARY KEY AUTOINCREMENT, winnerTypeId INTEGER)");
+        this.database.run("CREATE TABLE IF NOT EXISTS participant(id INTEGER PRIMARY KEY AUTOINCREMENT, gameId INTEGER, crewmateId INTEGER, deathtypeId INTEGER)");
     }
 
-    public async addGame(game: Game): Promise<number> {
+    public async addGame(game: GameRow): Promise<number> {
         return await new Promise((resolve, reject) => {
-            this.database.run('INSERT INTO Game(WinnerTypeId) VALUES (?)', [game.winnerType.id], (error: any, data: any) => {
-                this.database.all('FROM Game SELECT last_insert_rowid()', (error: any, data: any)=> { 
+            this.database.run('INSERT INTO game(WinnerTypeId) VALUES (?)', [game.winnderTypeId], (error: any, data: any) => {
+                this.database.all('FROM game SELECT last_insert_rowid()', (error: any, data: any)=> { 
                     if(error){
                         reject(error);
                     }
@@ -27,34 +26,43 @@ export class AmongUsContext {
         });
     }
 
-    public async registerUser(userName: string): Promise<CrewMate> {
+    public async addPlayer(participant: ParticipantRow): Promise<void> {
+        return await new Promise((resolve, reject) => {
+            this.database.run('INSERT INTO participant(gameId, crewmateId, deathtypeId) VALUES (?, ?, ?)', 
+                [participant.gameId, participant.crewmateId, participant.deathTypeId], 
+                this.resolvePromise(reject, () => { resolve(); }));
+        });
+    }
+
+    public async registerUser(userName: string): Promise<CrewMateRow> {
         return await new Promise(async (resolve, reject) => {
             var user = await this.getUser(userName);
             if(user.discordId === null || user.discordId === undefined) { 
-                this.database.run('INSERT INTO CrewMate(DiscordId) values (?)', userName, this.resolvePromise(reject, async ()=>{
-                    const result = await this.getUser(userName);
-                    resolve(result as CrewMate);
+                this.database.run('INSERT INTO crewMate(discord) VALUES (?)', [userName], 
+                    this.resolvePromise(reject, async ()=>{
+                        const result = await this.getUser(userName);
+                        resolve(result as CrewMateRow);
                 }));
             }
         });
     }
 
-    public async getUser(discord: string): Promise<CrewMate> {
+    public async getUser(discord: string): Promise<CrewMateRow> {
         return await new Promise((resolve, reject) => {
-            this.database.run("SELECT * From CrewMate Where DiscordId = '?'", 
+            this.database.run("SELECT * From CrewMate Where discord = '?'", 
                 discord, 
                 this.resolvePromise(reject, (data:any) => {
                     try{
                         console.log(data);
                         if(data === undefined){
-                            resolve({} as CrewMate);
+                            resolve({} as CrewMateRow);
                         }
                         if(data.length > 0){
-                            resolve(new CrewMate(data[0].Id, data[0].DiscordId));
+                            resolve(new CrewMateRow(data[0].Id, data[0].discordId));
                         }
-                        resolve({} as CrewMate);
+                        resolve({} as CrewMateRow);
                     } catch {
-                        resolve({} as CrewMate);
+                        resolve({} as CrewMateRow);
                     }
             }));
         });

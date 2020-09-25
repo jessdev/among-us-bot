@@ -1,14 +1,10 @@
 import Discord, { DiscordAPIError, Message } from "discord.js";
-import { time } from "console";
-import { AmongUsContext } from "./among-us-context";
-import { Game } from "./databaseModels/game";
-import { CrewMateType, CrewMate } from "./databaseModels/model-index";
+import { AmongUsService } from "./among-us-service";
+import { CrewMateType, CrewMate, Game, DeathType } from "./models/model-index";
 
 const client = new Discord.Client();
-let context = new AmongUsContext(process.env.DATABASE!);
-let channel_name =  "General";
-let channel_id = "754492183146659953";
-let currentPlayers: CrewMate[] =[];
+let service = new AmongUsService(process.env.DATABASE!);
+let currentGame: Game = {} as Game;
 
 client.on("ready", () => {
   if (client.user != null && client.user.tag != null) {
@@ -18,36 +14,82 @@ client.on("ready", () => {
   }
 });
 
-client.on('message', async (message: Message) => { 
-  if(message.content.includes("!channel")) {
-    channel_name = message.content.split(" ")[1];
-    console.log("set channel to " + channel_name);
+client.on('message', async (message: Message) => {
+  if(includesContent(message.content, ["!start"])){
+    currentGame = new Game();
+    await message.react("👌");
   }
-  await message.react("👌");
 });
 
 client.on('message', async (message: Message) => {
-  if(message.content.includes("!update game members")){
+  if(includesContent(message.content, ["!register"])) {
     console.log("update game members");
     let users = await message.member!.voice.channel!.members;
     users!.forEach(async (user) => {
-      let result = await context.registerUser(user.user.username);
-      console.log(result);
-      currentPlayers.push(result);
+      let result = await service.registerUser(user.user.username);
     });
     await message.react("👌");
   }
 });
 
 client.on('message', async (message: Message) => {
-  if(message.content.includes("!current players")){
+  if(includesContent(message.content, ["!playing"])){
+    if(currentGame.players.length !== undefined){
+      var user = await message.member!.user.username;
+      currentGame.addPlayer(new CrewMate(user));
+    }
+    await message.react("👌");
+  }
+});
+
+client.on('message', async (message: Message) => {
+  if(includesContent(message.content, ["!current players"])) {
     console.log("current players");
     let userStrings = "";
-    currentPlayers.forEach((user) => {
-      userStrings += userStrings + user.discordId;
+    currentGame.players.forEach((user) => {
+      userStrings += userStrings + user.discordName;
     });
     await message.reply(userStrings);
+    await message.react("👌");
+  }
+});
+
+client.on('message', async (message: Message) => {
+  if(includesContent(message.content, ["!status"])){
+    var username = await message.member!.user.username;
+    var user = currentGame.getPlayerByName(username);
+    message.reply("you are currently "+ DeathType[user.status]);
+  }
+});
+
+client.on('message', async (message: Message) => {
+  if(includesContent(message.content, ["!died"])) {
+    var username = await message.member!.user.username;
+    currentGame.playerDied(username);
+  }
+});
+
+client.on('message', async (message: Message) => {
+  if(includesContent(message.content, ["!voted"])) {
+    var username = await message.member!.user.username;
+    currentGame.playerVoted(username);
+  }
+});
+
+client.on('message', async (message: Message) => {
+  if(includesContent(message.content, ["pog", "orange"])){
+    await message.react("👌");
   }
 });
 
 client.login(process.env.DISCORD_TOKEN!);
+
+function includesContent(message: string, matches: string []): boolean {
+  let isMessage = false;
+  matches.forEach((item: string) => { 
+    if(message.toLocaleLowerCase().includes(item.toLowerCase())){
+      isMessage = true;
+    }
+  });
+  return isMessage;
+}
