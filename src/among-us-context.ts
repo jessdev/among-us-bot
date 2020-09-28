@@ -16,7 +16,7 @@ export class AmongUsContext {
     public async addGame(game: GameRow): Promise<number> {
         return await new Promise((resolve, reject) => {
             this.database.run('INSERT INTO game(WinnerTypeId) VALUES (?)', [game.winnderTypeId], (error: any, data: any) => {
-                this.database.all('FROM game SELECT last_insert_rowid()', (error: any, data: any)=> { 
+                this.database.all('FROM game SELECT last_insert_rowid()', (error: any, data: any) => { 
                     if(error){
                         reject(error);
                     }
