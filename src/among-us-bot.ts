@@ -29,6 +29,9 @@ export class AmongUsBot {
     console.log("update game members");
     let users = await this.getCallUsers(message);
     await this.assignRole(role, users);
+    users.forEach((user) => {
+      this.currentGame.addPlayer(new CrewMate(user.user.username));
+    })
     await message.react("👌");
   }
 

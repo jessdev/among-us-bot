@@ -4,7 +4,6 @@ import { CrewMateRow, GameRow, ParticipantRow } from "./databaseModels/database-
 export class AmongUsContext {
     private database: sqlite3.Database
     constructor(databaseFileName: string) {
-        console.log(databaseFileName);
         this.database = new sqlite3.Database(databaseFileName);
         this.database.run("CREATE TABLE IF NOT EXISTS crewMateType(id INTEGER PRIMARY KEY, type TEXT)");
         this.database.run("CREATE TABLE IF NOT EXISTS crewMate(id INTEGER PRIMARY KEY AUTOINCREMENT, discord TEXT)");

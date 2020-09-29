@@ -33,6 +33,9 @@ client.on("message", async (message: Message) => {
   else if (includesContent(message.content, ["!register"])) {
     await amongUsBot.joinUsers(message);
   }
+  else if (includesContent(message.content, ["!current players"])) {
+    await amongUsBot.currentPlayers(message);
+  }
 });
 
 client.on("message", async (message: Message) => {
@@ -59,9 +62,6 @@ client.on("message", async (message: Message) => {
   } 
   else if (includesContent(message.content, ["!resetrole"]) && message.guild !== null) {
     await amongUsBot.resetRoles(message);
-  } 
-  else if (includesContent(message.content, ["!current players"])) {
-    await amongUsBot.currentPlayers(message);
   }
 });
 
@@ -78,6 +78,7 @@ function includesContent(message: string, matches: string[]): boolean {
   matches.forEach((item: string) => {
     if (message.toLocaleLowerCase().includes(item.toLowerCase())) {
       isMessage = true;
+      console.log(item);
     }
   });
   return isMessage;

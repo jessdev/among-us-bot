@@ -79,7 +79,7 @@ export class Game {
     /* Game Controls */
 
     public gameIsReadyForStorage() : Boolean {
-        if(this.gameStastus === GameStatus.OnGoing || this.players.length < 4){
+        if(this.gameStastus === GameStatus.OnGoing || this.players.length < 3){
             return false;
         }
         let isReady = true;
