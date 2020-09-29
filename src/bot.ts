@@ -15,7 +15,7 @@ client.on("message", async (message: Message) => {
   else if (includesContent(message.content, ["!leave"])) {
     await amongUsBot.leaveUser(message);
   } 
-  else if (includesContent(message.content, ["!impostor"])) {
+  else if (includesContent(message.content, ["!impostor", "!imposter"])) {
     await amongUsBot.impostorUser(message);
   } 
   else if (includesContent(message.content, ["!crewmate"])) {
@@ -39,7 +39,7 @@ client.on("message", async (message: Message) => {
 });
 
 client.on("message", async (message: Message) => {
-  if (includesContent(message.content, ["!win impostor"])) {
+  if (includesContent(message.content, ["!win impostor", "!win imposter"])) {
     amongUsBot.impostorWin(message);
   }
   else if (includesContent(message.content, ["!win crewmate"])) {

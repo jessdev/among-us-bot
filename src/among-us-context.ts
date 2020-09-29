@@ -14,14 +14,11 @@ export class AmongUsContext {
 
     public async addGame(game: GameRow): Promise<number> {
         return await new Promise((resolve, reject) => {
-            this.database.run('INSERT INTO game(WinnerTypeId) VALUES (?)', [game.winnderTypeId], (error: any, data: any) => {
-                this.database.all('FROM game SELECT last_insert_rowid()', (error: any, data: any) => { 
-                    if(error){
-                        reject(error);
-                    }
-                    resolve(data[0]["last_insert_rowid()"]);
-                });
-            });
+            this.database.run('INSERT INTO game(WinnerTypeId) VALUES (?)', [game.winnderTypeId], this.resolvePromise(reject, (nullResponse: any) => {
+                this.database.get("SELECT last_insert_rowid()", this.resolvePromise(reject, (data: any) => {
+                    resolve(data['last_insert_rowid()']);
+                }));
+            }));
         });
     }
 
