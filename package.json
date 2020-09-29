@@ -7,7 +7,7 @@
     "test": "node ./node_modules/jest/bin/jest.js",
     "lint": "node ./node_modules/tslint/bin/tslint -p ./tsconfig.json",
     "lintFix": "node ./node_modules/tslint/bin/tslint -p ./tsconfig.json --fix",
-    "build": "node ./node_modules/typescript/bin/tsc",
+    "build": "node ./node_modules/typescript/bin/tsc -p ./tsconfig.json",
     "watch": "node ./node_modules/typescript/bin/tsc --watch",
     "prestart": "npm run build",
     "start": "node ./dist/bot.js"
@@ -36,7 +36,9 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
+    "@types/uuid": "^8.3.0",
     "discord.js": "^12.3.1",
-    "sqlite3": "^5.0.0"
+    "sqlite3": "^5.0.0",
+    "uuid": "^8.3.0"
   }
 }
