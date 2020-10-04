@@ -1,3 +1,4 @@
+import { rejects } from "assert";
 import sqlite3 from "sqlite3";
 import { CrewMateRow, GameRow, ParticipantRow } from "./databaseModels/database-index";
 
@@ -42,6 +43,16 @@ export class AmongUsContext {
         return await new Promise((resolve, reject) => {
             let sql = "SELECT id, winnerTypeId FROM game WHERE id = ?";
             this.database.get(sql, id, this.handleError(reject, (data: GameRow) => {
+                resolve(data);
+            }));
+        });
+    }
+
+    public async getAllGames(): Promise<GameRow[]> {
+        return await new Promise((resolve, reject) => {
+            let sql = "SELECT id, winnerTypeId FROM game";
+            this.database.all(sql, this.handleError(reject, (data: GameRow[]) => {
+                console.log(data);
                 resolve(data);
             }));
         });

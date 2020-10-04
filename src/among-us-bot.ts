@@ -135,6 +135,20 @@ export class AmongUsBot {
     }
   }
 
+  public async getGameCount(message: Message){
+    let result = await this.amongService.getGameCount();
+    message.reply("There are "+ result +" number of games.");
+  }
+
+  public async getGame(message: Message) {
+    let id = Number(message.content.split(" ")[1]);
+    if(isNaN(id)){
+      id = 1;
+    }
+    let game = await this.amongService.getGame(id);
+    message.reply(JSON.stringify(game));
+  }
+
   /* END Game Functions */
 
   private async getRole(msg: Message): Promise<Discord.Role> {
@@ -174,7 +188,7 @@ export class AmongUsBot {
   private async removeRole(role: Discord.Role, users: Discord.GuildMember[]): Promise<void> {
     users.forEach(async (user) => { 
       await user.roles.remove(role);
-    }); 
+    });
   }
 
 }

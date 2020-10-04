@@ -40,6 +40,11 @@ export class AmongUsService {
         return exportGame;
     }
 
+    public async getGameCount(): Promise<number> {
+        let games = await this.context.getAllGames();
+        return games.length;
+    }
+
     public async registerUser(user: string) {
         try{
             await this.context.registerUser(user);

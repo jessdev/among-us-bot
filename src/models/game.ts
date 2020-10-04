@@ -79,7 +79,7 @@ export class Game {
     /* Game Controls */
 
     public gameIsReadyForStorage() : Boolean {
-        if(this.gameStastus === GameStatus.OnGoing || this.players.length < 3){
+        if(this.gameStastus === GameStatus.OnGoing || this.players.length < 4){
             return false;
         }
         let isReady = true;
@@ -108,6 +108,9 @@ export class Game {
     public findMissingData(): string {
         if(this.gameStastus === GameStatus.OnGoing){
             return "Game is still in 'On Going' state";
+        }
+        if(this.players.length < 4){
+            return "There are only "+this.players.length + " players. Games need 4";
         }
         let message = "Game is ready to be stored";
         this.players.forEach((crew: CrewMate) => {

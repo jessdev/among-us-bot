@@ -63,6 +63,12 @@ client.on("message", async (message: Message) => {
   else if (includesContent(message.content, ["!resetrole"]) && message.guild !== null) {
     await amongUsBot.resetRoles(message);
   }
+  else if (includesContent(message.content, ["!game count", "!gamecount"])) {
+    await amongUsBot.getGameCount(message);
+  }
+  else if (includesContent(message.content, ["!getgame", "!get game"])) {
+    await amongUsBot.getGame(message);
+  }
 });
 
 client.on("message", async (message: Message) => {
