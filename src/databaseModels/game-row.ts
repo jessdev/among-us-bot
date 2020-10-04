@@ -1,3 +1,3 @@
 export class GameRow {
-    constructor(public id: number, public winnderTypeId: number) {}
+    constructor(public id: number, public winnerTypeId: number) {}
 }

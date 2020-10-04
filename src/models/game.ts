@@ -58,7 +58,7 @@ export class Game {
         }
     }
 
-    public playerWasCrewMater(discord: string) {
+    public playerWasCrewMate(discord: string) {
         let memeber = this.getPlayerByName(discord);
         if(memeber !== null) {
             memeber.role = CrewMateType.CrewMember;

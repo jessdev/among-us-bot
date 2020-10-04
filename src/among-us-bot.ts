@@ -53,7 +53,7 @@ export class AmongUsBot {
 
   public async crewmateUser(message: Message){
     let username = message.member!.user.username;
-    this.currentGame.playerWasCrewMater(username);
+    this.currentGame.playerWasCrewMate(username);
     await message.react("👌");
   }
 

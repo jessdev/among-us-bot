@@ -15,7 +15,7 @@ export class AmongUsContext {
                 this.database.run("CREATE TABLE IF NOT EXISTS crewMate(id INTEGER PRIMARY KEY AUTOINCREMENT, discord TEXT)", this.handleError(reject, () => {
                     this.database.run("CREATE TABLE IF NOT EXISTS deathType(id INTEGER PRIMARY KEY, type TEXT)", this.handleError(reject, () => {
                         this.database.run("CREATE TABLE IF NOT EXISTS game(id INTEGER PRIMARY KEY AUTOINCREMENT, winnerTypeId INTEGER)", this.handleError(reject, () => { 
-                            this.database.run("CREATE TABLE IF NOT EXISTS participant(id INTEGER PRIMARY KEY AUTOINCREMENT, gameId INTEGER, crewmateId INTEGER, deathtypeId INTEGER)", this.handleError(reject, () => { 
+                            this.database.run("CREATE TABLE IF NOT EXISTS participant(id INTEGER PRIMARY KEY AUTOINCREMENT, gameId INTEGER, crewmateId INTEGER, roleId INTEGER, statusId INTEGER)", this.handleError(reject, () => { 
                                 resolve();
                             }));
                         }));
@@ -29,11 +29,20 @@ export class AmongUsContext {
 
     public async addGame(game: GameRow): Promise<number> {
         return await new Promise((resolve, reject) => {
-            this.database.run('INSERT INTO game(WinnerTypeId) VALUES (?)', [game.winnderTypeId], 
+            this.database.run('INSERT INTO game(winnerTypeId) VALUES (?)', [game.winnerTypeId], 
                 this.handleError(reject, (nullResponse: any) => {
                     this.database.get("SELECT last_insert_rowid()", this.handleError(reject, (data: any) => {
                         resolve(data['last_insert_rowid()']);
                     }));
+            }));
+        });
+    }
+
+    public async getGame(id: number): Promise<GameRow> {
+        return await new Promise((resolve, reject) => {
+            let sql = "SELECT id, winnerTypeId FROM game WHERE id = ?";
+            this.database.get(sql, id, this.handleError(reject, (data: GameRow) => {
+                resolve(data);
             }));
         });
     }
@@ -44,9 +53,27 @@ export class AmongUsContext {
 
     public async addPlayer(participant: ParticipantRow): Promise<void> {
         return await new Promise((resolve, reject) => {
-            this.database.run('INSERT INTO participant(gameId, crewmateId, deathtypeId) VALUES (?, ?, ?)', 
-                [participant.gameId, participant.crewmateId, participant.deathTypeId], 
+            this.database.run('INSERT INTO participant(gameId, crewmateId, roleId, statusId) VALUES (?, ?, ?, ?)', 
+                [participant.gameId, participant.crewmateId, participant.roleId, participant.statusId], 
                 this.handleError(reject, () => { resolve(); }));
+        });
+    }
+
+    public async getParticipantByGameId(gameId: number): Promise<ParticipantRow[]> {
+        return await new Promise((resolve, reject) => {
+            let sql = "SELECT id, gameId, crewmateId, roleId, statusId FROM participant WHERE gameId = ?";
+            this.database.all(sql, gameId, this.handleError(reject, (data: ParticipantRow[]) => {
+                resolve(data);
+            }));
+        });
+    }
+
+    public async getParticipant(id: number) : Promise<ParticipantRow> {
+        return await new Promise((resolve, reject) => { 
+            let sql = "SELECT id, gameId, crewmateId, roleId, statusId FROM participant WHERE id = ?";
+            this.database.get(sql, id, this.handleError(reject, (data: ParticipantRow) => {
+                resolve(data);
+            }));
         });
     }
 
@@ -77,10 +104,9 @@ export class AmongUsContext {
 
     public async getUser(discord: string): Promise<CrewMateRow> {
         return await new Promise((resolve, reject) => {
-            let sql = "SELECT id, discord from crewMate where discord = ?"
+            let sql = "SELECT id, discord FROM crewMate WHERE discord = ?";
             this.database.get(sql, discord,
                 this.handleError(reject, (data: CrewMateRow) => {
-                    console.log(data)
                     if(data !== undefined && data !== null) {
                         resolve(data);
                         return;
@@ -88,6 +114,19 @@ export class AmongUsContext {
                     reject();
                 })
             );
+        });
+    }
+
+    public async getCrewmate(id: number): Promise<CrewMateRow> {
+        return await new Promise((resolve, reject) => {
+            let sql = "SELECT id, discord FROM crewMate WHERE id = ?";
+            this.database.get(sql, id, this.handleError(reject, (data: CrewMateRow) => {
+                if(data !== undefined && data !== null) {
+                    resolve(data);
+                    return;
+                }
+                reject();
+            }));
         });
     }
 
