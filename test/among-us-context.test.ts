@@ -7,6 +7,8 @@ import { GameRow } from "../src/databaseModels/game-row";
 const guid: string = Guid();
 var testContext = new AmongUsContext(guid+".db");
 
+const testCrewmateUsername = "TestName";
+
 test('save game to database', async () => {
     await testContext.databaseSetup;
     try {
@@ -21,27 +23,23 @@ test('save game to database', async () => {
 
 test('save crewmate to database', async () => {
     await testContext.databaseSetup;
+    let crew = new CrewMateRow(0, testCrewmateUsername);
+    await testContext.addCrewMate(crew);
+});
+
+test('get crewmate', async () => {
+    await testContext.databaseSetup;
     try {
-        let discord = "test";
-        let crew = new CrewMateRow(0, discord);
-        var result = await testContext.addCrewMate(crew);
-        expect(result).toBe(undefined);
+        let result = await testContext.getUser(testCrewmateUsername);
+        expect(result.discord).toBe(testCrewmateUsername);
     } catch (error) {
         console.log(error);
         throw error;
     }
 });
 
-test('get crewmate', async () => {
+test("get all crewmates", async () => {
     await testContext.databaseSetup;
-    try {
-        let discord = "testUser";
-        let crew = new CrewMateRow(0, discord);
-        await testContext.addCrewMate(crew);
-        let result = await testContext.getUser(discord);
-        expect(result.discordId).toBe(discord);
-    } catch (error) {
-        console.log(error);
-        throw error;
-    }
+    let results = await testContext.getAllCrewMates();
+    expect(results.length).toBeGreaterThan(0);
 });
